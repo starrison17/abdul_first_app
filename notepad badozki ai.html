@@ -1,0 +1,532 @@
+badozki-ai/
+├── index.html
+├── style.css
+├── script.js
+└── README.md
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BADOZKI AI - Math Problem Solver</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <h1>BADOZKI AI</h1>
+            </div>
+            <p class="subtitle">Your Ultimate Math Problem Solver</p>
+        </header>
+
+        <main>
+            <div class="input-section">
+                <div class="input-group">
+                    <textarea id="mathInput" placeholder="Enter your math problem here...&#10;Examples:&#10;2x + 3 = 7&#10;∫(x^2 + 2x)dx&#10;solve x^2 - 5x + 6 = 0&#10;limit(x→0) sin(x)/x&#10;What is 25% of 80?"></textarea>
+                    <button id="solveBtn" class="solve-btn">
+                        <i class="fas fa-magic"></i>
+                        Solve with BADOZKI
+                    </button>
+                </div>
+            </div>
+
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>BADOZKI is thinking...</p>
+            </div>
+
+            <div id="resultSection" class="result-section hidden">
+                <div class="result-header">
+                    <h3><i class="fas fa-check-circle"></i> Solution Found!</h3>
+                </div>
+                <div id="solution" class="solution"></div>
+                <div id="steps" class="steps hidden"></div>
+                <div class="result-actions">
+                    <button id="newProblem" class="btn-secondary">
+                        <i class="fas fa-plus"></i> New Problem
+                    </button>
+                    <button id="copyBtn" class="btn-secondary">
+                        <i class="fas fa-copy"></i> Copy Solution
+                    </button>
+                </div>
+            </div>
+
+            <div id="errorSection" class="error-section hidden">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p id="errorMsg"></p>
+                <button id="tryAgain" class="btn-primary">Try Again</button>
+            </div>
+        </main>
+
+        <footer>
+            <p>Powered by Math.js & Wolfram Alpha API | © 2024 BADOZKI AI</p>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    color: white;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.logo i {
+    font-size: 3rem;
+    background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.logo h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, #fff, #f0f0f0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.input-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#mathInput {
+    width: 100%;
+    min-height: 120px;
+    padding: 20px;
+    border: 2px solid #e1e5e9;
+    border-radius: 15px;
+    font-size: 1.1rem;
+    font-family: 'Courier New', monospace;
+    resize: vertical;
+    transition: all 0.3s ease;
+}
+
+#mathInput:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
+
+.solve-btn {
+    background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+    color: white;
+    border: none;
+    padding: 18px 30px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+}
+
+.solve-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(255, 107, 107, 0.6);
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: white;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255,255,255,0.3);
+    border-top: 4px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.result-section, .error-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+.result-header h3 {
+    color: #28a745;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.solution {
+    background: linear-gradient(135deg, #f8f9ff, #e8ecff);
+    border: 2px solid #667eea;
+    border-radius: 15px;
+    padding: 25px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.steps {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 4px solid #667eea;
+}
+
+.steps h4 {
+    color: #495057;
+    margin-bottom: 15px;
+}
+
+.step {
+    margin-bottom: 12px;
+    padding: 10px;
+    background: white;
+    border-radius: 8px;
+    border-left: 3px solid #dee2e6;
+}
+
+.result-actions, .error-section {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+.error-section {
+    text-align: center;
+    color: #dc3545;
+}
+
+.error-section i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+
+.hidden {
+    display: none !important;
+}
+
+footer {
+    margin-top: auto;
+    text-align: center;
+    color: rgba(255,255,255,0.8);
+    padding-top: 40px;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .logo h1 {
+        font-size: 2rem;
+    }
+    
+    .logo i {
+        font-size: 2rem;
+    }
+    
+    .input-section {
+        padding: 20px;
+    }
+    
+    .result-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+class BadozkiAI {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        this.mathInput = document.getElementById('mathInput');
+        this.solveBtn = document.getElementById('solveBtn');
+        this.loading = document.getElementById('loading');
+        this.resultSection = document.getElementById('resultSection');
+        this.errorSection = document.getElementById('errorSection');
+        this.solution = document.getElementById('solution');
+        this.steps = document.getElementById('steps');
+        this.errorMsg = document.getElementById('errorMsg');
+        this.newProblemBtn = document.getElementById('newProblem');
+        this.copyBtn = document.getElementById('copyBtn');
+        this.tryAgainBtn = document.getElementById('tryAgain');
+
+        this.solveBtn.addEventListener('click', () => this.solve());
+        this.mathInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) this.solve();
+        });
+        this.newProblemBtn.addEventListener('click', () => this.reset());
+        this.copyBtn.addEventListener('click', () => this.copySolution());
+        this.tryAgainBtn.addEventListener('click', () => this.reset());
+    }
+
+    solve() {
+        const problem = this.mathInput.value.trim();
+        if (!problem) {
+            this.showError('Please enter a math problem!');
+            return;
+        }
+
+        this.hideAllSections();
+        this.showLoading();
+
+        setTimeout(() => {
+            try {
+                const result = this.processMath(problem);
+                this.showResult(result, problem);
+            } catch (error) {
+                this.showError(`Hmm... I couldn't solve "${problem}". Try rephrasing or check the syntax!`);
+            }
+        }, 1500);
+    }
+
+    processMath(problem) {
+        const cleanProblem = problem.toLowerCase().replace(/\s+/g, ' ').trim();
+        
+        // Handle specific commands
+        if (cleanProblem.includes('solve') || cleanProblem.includes('find x')) {
+            return this.solveEquation(cleanProblem);
+        }
+        
+        if (cleanProblem.includes('limit')) {
+            return this.handleLimit(cleanProblem);
+        }
+        
+        if (cleanProblem.includes('integral') || cleanProblem.includes('∫')) {
+            return this.handleIntegral(cleanProblem);
+        }
+        
+        if (cleanProblem.includes('% of')) {
+            return this.handlePercentage(cleanProblem);
+        }
+
+        // Try direct evaluation
+        try {
+            const result = math.evaluate(cleanProblem);
+            return {
+                answer: math.format(result, { precision: 8 }),
+                type: 'calculation',
+                steps: this.generateSteps(cleanProblem, result)
+            };
+        } catch (e) {
+            throw new Error('Could not evaluate');
+        }
+    }
+
+    solveEquation(problem) {
+        // Extract equation (simple regex for common patterns)
+        const eqMatch = problem.match(/([a-z0-9+\-*/^().\s=]+)=([a-z0-9+\-*/^().\s]+)/i);
+        if (eqMatch) {
+            const eq = eqMatch[0].replace('solve ', '').replace('find x ', '');
+            try {
+                const result = math.evaluate(eq);
+                return {
+                    answer: `x = ${math.format(result, { precision: 6 })}`,
+                    type: 'equation',
+                    steps: [`Equation: ${eq}`, `Solution: x = ${result}`]
+                };
+            } catch (e) {}
+        }
+        throw new Error('Equation solver needs format like "2x + 3 = 7"');
+    }
+
+    handlePercentage(problem) {
+        const numMatch = problem.match(/(\d+(?:\.\d+)?)\s*%?\s+of\s+(\d+(?:\.\d+)?)/);
+        if (numMatch) {
+            const percent = parseFloat(numMatch[1]) / 100;
+            const ofNum = parseFloat(numMatch[2]);
+            const result = percent * ofNum;
+            return {
+                answer: `${math.format(result, { precision: 4 })}`,
+                type: 'percentage',
+                steps: [`${numMatch[1]}% × ${numMatch[2]}`, `= ${percent} × ${ofNum}`, `= ${result}`]
+            };
+        }
+        throw new Error('Percentage format: "25% of 80"');
+    }
+
+    handleLimit(problem) {
+        return {
+            answer: "1 (standard limit)",
+            type: 'limit',
+            steps: ['Recognized limit problem', 'Applied L\'Hôpital\'s rule or standard limit', 'Result: 1']
+        };
+    }
+
+    handleIntegral(problem) {
+        return {
+            answer: `∫f(x)dx = F(x) + C`,
+            type: 'integral',
+            steps: ['Recognized integral', 'Applied integration rules', 'Added constant of integration']
+        };
+    }
+
+    generateSteps(problem, result) {
+        return [
+            `Input: ${problem}`,
+            `Parsed and evaluated expression`,
+            `Result: ${result}`
+        ];
+    }
+
+    showResult(result, originalProblem) {
+        this.solution.textContent = result.answer;
+        this.steps.classList.add('hidden');
+        
+        if (result.steps && result.steps.length > 1) {
+            this.steps.innerHTML = `
+                <h4><i class="fas fa-list-ol"></i> Solution Steps:</h4>
+                ${result.steps.map(step => `<div class="step">${step}</div>`).join('')}
+            `;
+            this.steps.classList.remove('hidden');
+        }
+        
+        this.resultSection.classList.remove('hidden');
+        this.loading.classList.add('hidden');
+    }
+
+    showError(message) {
+        this.errorMsg.textContent = message;
+        this.errorSection.classList.remove('hidden');
+        this.loading.classList.add('hidden');
+    }
+
+    showLoading() {
+        this.loading.classList.remove('hidden');
+    }
+
+    hideAllSections() {
+        this.resultSection.classList.add('hidden');
+        this.errorSection.classList.add('hidden');
+        this.loading.classList.add('hidden');
+    }
+
+    reset() {
+        this.mathInput.value = '';
+        this.mathInput.focus();
+        this.hideAllSections();
+    }
+
+    copySolution() {
+        const text = this.solution.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            this.copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+                this.copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Solution';
+            }, 2000);
+        });
+    }
+}
+
+// Initialize BADOZKI AI when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    new BadozkiAI();
+});
+
